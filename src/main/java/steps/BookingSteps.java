@@ -1,6 +1,9 @@
 package steps;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -8,9 +11,11 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,11 +50,6 @@ public class BookingSteps {
 
     @When("User does search")
     public void userDoesSearch() {
-        //open page
-        //set value in city field
-        //click on dates
-        //select dates
-        //click search
         open("https://www.booking.com/");
         $(By.name("ss")).setValue(city);
         $(By.cssSelector("[data-testid='searchbox-dates-container']")).click();
@@ -59,8 +59,21 @@ public class BookingSteps {
     }
 
     @Then("Hotel {string} should be on the search results page")
-    public void hotelShouldBeOnTheSearchResultsPage() {
+    public void hotelShouldBeOnTheSearchResultsPage(String hotelName) {
+        ElementsCollection hotelsTitlesList = Selenide.$$(By.cssSelector("[data-testid='title']"));
+        ArrayList<String> hotelNames = new ArrayList();
 
+        for(SelenideElement element : hotelsTitlesList) {
+            hotelNames.add(element.getText());
+        }
+
+        Assert.assertTrue(hotelNames.contains(hotelName));
+    }
+
+    @Then("Hotel {string} rating is {string}")
+    public void hotelRatingIs(String hotel, String rate) {
+        String hotelRate = Selenide.$x(String.format("//*[contains(text(),'%s')]/ancestor::div[@data-testid='property-card-container']//*[@data-testid='review-score']/div/div", hotel)).getText();
+        Assert.assertEquals(hotelRate.split(" ")[1], rate);
     }
 
     @AfterMethod
@@ -75,9 +88,5 @@ public class BookingSteps {
 
     @Given("User provide information:")
     public void userProvideInformation() {
-    }
-
-    @Then("Hotel {string} rating is {string}")
-    public void hotelNorthBeachResortVillasRatingIs(int arg0, int arg1) {
     }
 }
