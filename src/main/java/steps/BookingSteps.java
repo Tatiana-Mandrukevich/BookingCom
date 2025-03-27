@@ -4,6 +4,7 @@ import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,8 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
+import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static com.codeborne.selenide.WebDriverRunner.setWebDriver;
 
@@ -50,17 +51,16 @@ public class BookingSteps {
 
     @When("User does search")
     public void userDoesSearch() {
-        open("https://www.booking.com/");
         $(By.name("ss")).setValue(city);
         $(By.cssSelector("[data-testid='searchbox-dates-container']")).click();
-        $(By.cssSelector("[data-date='2025-03-25']")).click();
-        $(By.cssSelector("[data-date='2025-04-05']")).click();
+        $(By.cssSelector("[data-date='2025-04-07']")).click();
+        $(By.cssSelector("[data-date='2025-04-14']")).click();
         $(By.cssSelector("[type='submit']")).click();
     }
 
     @Then("Hotel {string} should be on the search results page")
     public void hotelShouldBeOnTheSearchResultsPage(String hotelName) {
-        ElementsCollection hotelsTitlesList = Selenide.$$(By.cssSelector("[data-testid='title']"));
+        ElementsCollection hotelsTitlesList = Selenide.$$(By.cssSelector("[data-testid='title']")).shouldHave(sizeGreaterThan(0));;
         ArrayList<String> hotelNames = new ArrayList();
 
         for(SelenideElement element : hotelsTitlesList) {
@@ -72,7 +72,7 @@ public class BookingSteps {
 
     @Then("Hotel {string} rating is {string}")
     public void hotelRatingIs(String hotel, String rate) {
-        String hotelRate = Selenide.$x(String.format("//*[contains(text(),'%s')]/ancestor::div[@data-testid='property-card-container']//*[@data-testid='review-score']/div/div", hotel)).getText();
+        String hotelRate = $x(String.format("//*[contains(text(),'%s')]/ancestor::div[@data-testid='property-card-container']//*[@data-testid='review-score']/div/div", hotel)).getText();
         Assert.assertEquals(hotelRate.split(" ")[1], rate);
     }
 
@@ -88,5 +88,21 @@ public class BookingSteps {
 
     @Given("User provide information:")
     public void userProvideInformation() {
+    }
+
+    @And("User changes language to {string}")
+    public void userChangesLanguage(String language) {
+        $(By.cssSelector("[data-testid='header-language-picker-trigger']")).click();
+        $x(String.format("//*[text()='%s']", language)).click();
+    }
+
+    @When("User filters by {string} and selects {string}")
+    public void userFilters(String filterName, String filterValue) {
+        $x(String.format("//*[text()='%s']//ancestor::fieldset//*[text()='%s']//ancestor::div[@data-filters-item]//*[@type=\"checkbox\"]", filterName, filterValue)).click();
+    }
+
+    @And("User goes to the site Booking.com")
+    public void userGoesToTheSiteBookingCom() {
+        open("https://www.booking.com/");
     }
 }
