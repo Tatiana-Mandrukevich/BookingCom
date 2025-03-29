@@ -1,0 +1,24 @@
+{
+  "users" : [
+    {
+      "email" : "1@onliner.by",
+      "firstName" : "first",
+      "lastName" : "last",
+      "age" : 20,
+      "isMan" : true,
+      "additionalDate" : null
+    },
+    {
+      "email" : "2@onliner.by",
+      "firstName" : "first2",
+      "lastName" : "last2",
+      "age" : 21
+    },
+    {
+      "email" : "3@onliner.by",
+      "firstName" : "first3",
+      "lastName" : "last3",
+      "age" : 22
+    }
+  ]
+}
